@@ -1,0 +1,778 @@
+
+================================================================================
+  BUILD ARCHITECTURE & UI REFERENCE PROMPT
+  Use this as a reference alongside your new project idea
+================================================================================
+
+Copy everything below this line and paste it as your prompt. Replace the
+[YOUR_PROJECT] placeholders with your actual project details.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROMPT STARTS HERE:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Build me a production-grade web application for: [YOUR_PROJECT_NAME]
+
+Description: [DESCRIBE YOUR PROJECT IDEA IN 2-3 SENTENCES]
+
+Roles/Users: [LIST YOUR USER ROLES — e.g., Admin, Customer, Vendor]
+
+Core Features: [LIST YOUR MAIN FEATURES]
+
+
+================================================================================
+SECTION A: TECH STACK (USE EXACTLY THIS)
+================================================================================
+
+Use the following tech stack. Do NOT substitute any of these:
+
+  - Framework:   Next.js (latest, App Router) with Turbopack
+  - Language:    TypeScript (strict mode)
+  - Styling:     Tailwind CSS (latest)
+  - Animations:  Framer Motion (for all transitions, hovers, page loads)
+  - Icons:       Lucide React (for all icons — do NOT use FontAwesome, Heroicons, etc.)
+  - Charts:      Recharts (for any data visualizations, graphs, analytics)
+  - PDF:         jsPDF (for any PDF generation — receipts, tickets, reports)
+  - Storage:     localStorage with per-user namespaced keys (prototype)
+  - Font:        Inter (Google Fonts) for body, JetBrains Mono for code/IDs
+
+  next.config.ts must include:
+    serverExternalPackages: ['jspdf', 'fflate']
+    turbopack: {}
+
+  Package.json dependencies:
+    "framer-motion": "^12",
+    "jspdf": "^4",
+    "lucide-react": "^0.577",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "^3"
+
+  Dev dependencies:
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "eslint": "^9"
+
+
+================================================================================
+SECTION B: DESIGN SYSTEM — DARK GLASSMORPHISM THEME
+================================================================================
+
+Follow this EXACT design system for the entire application. Every single
+component, page, and element must follow these rules:
+
+B.1  COLOR PALETTE
+     ─────────────
+     Background:       #0a0a1a (deep dark navy — NEVER use white bg)
+     Surface/Cards:    bg-white/5 backdrop-blur-xl border border-white/10
+     Primary Accent:   Emerald green gradient: from-emerald-500 to-green-500
+     Secondary:        Sky blue (#3b82f6)
+     Tertiary:         Purple (#a855f7)
+     Success:          Emerald (#10b981)
+     Warning:          Amber (#f59e0b)
+     Danger:           Red (#ef4444)
+     Info:             Cyan (#06b6d4)
+     Text Primary:     #ffffff (white)
+     Text Secondary:   #9ca3af (gray-400)
+     Text Muted:       #6b7280 (gray-500)
+
+B.2  GLASSMORPHISM RULES (Apply to ALL cards, panels, modals, sidebars)
+     ────────────────────────────────────────────────────────────────────
+     Every card/container MUST use:
+       className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl"
+
+     Modals background:
+       className="bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-2xl"
+
+     Buttons (primary):
+       className="bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-xl
+                  hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+
+     Buttons (outlined):
+       className="border border-white/20 text-white rounded-xl hover:bg-white/10"
+
+     Active/Selected states:
+       className="bg-gradient-to-r from-emerald-500/20 to-green-500/20
+                  border border-emerald-500/30 text-white"
+
+     Sidebar:
+       className="bg-white/5 backdrop-blur-xl border-r border-white/10"
+
+     Top bar:
+       className="bg-white/5 backdrop-blur-xl border-b border-white/10"
+
+     NEVER use: bg-white, bg-gray-100, bg-slate-50, or any light backgrounds.
+     This is a DARK THEME ONLY application.
+
+B.3  TYPOGRAPHY
+     ──────────
+     - Headings: font-bold text-white
+     - Body text: text-gray-400
+     - Labels: font-medium text-gray-300 text-sm
+     - Small text: text-xs text-gray-500
+     - Links: text-emerald-400 hover:text-emerald-300
+     - Numbers/IDs/Codes: font-mono (JetBrains Mono)
+
+B.4  SPACING & LAYOUT
+     ─────────────────
+     - Card padding: p-5 or p-6
+     - Card gap: gap-4 or gap-6
+     - Page padding: p-4 lg:p-6
+     - Rounded corners: rounded-2xl for cards, rounded-xl for buttons, rounded-lg for inputs
+     - Icon sizes: size={16} for inline, size={18} for nav, size={20} for headers
+
+B.5  SHADOWS & GLOW
+     ────────────────
+     - Cards: no shadow by default, shadow-lg shadow-emerald-500/10 on hover
+     - Buttons: hover:shadow-lg hover:shadow-emerald-500/25
+     - Focus rings: ring-2 ring-emerald-500/50
+     - Active nav items: border border-emerald-500/30 with green bg tint
+
+
+================================================================================
+SECTION C: ANIMATIONS — FRAMER MOTION PATTERNS
+================================================================================
+
+Use Framer Motion for ALL animations. Follow these exact patterns:
+
+C.1  PAGE/CARD ENTRANCE
+     ───────────────────
+     Every card and section on page load:
+       <motion.div
+         initial={{ opacity: 0, y: 20 }}
+         animate={{ opacity: 1, y: 0 }}
+         transition={{ duration: 0.3 }}
+       >
+
+C.2  STAGGERED CHILDREN (for lists, grids)
+     ──────────────────────────────────────
+     Parent:
+       <motion.div initial="hidden" animate="visible"
+         variants={{ visible: { transition: { staggerChildren: 0.05 } } }}>
+
+     Each child:
+       <motion.div variants={{
+         hidden: { opacity: 0, y: 20 },
+         visible: { opacity: 1, y: 0 }
+       }}>
+
+C.3  HOVER EFFECTS (for interactive cards)
+     ─────────────────────────────────────
+       whileHover={{ scale: 1.02, boxShadow: '0 20px 40px rgba(16, 185, 129, 0.1)' }}
+
+C.4  BUTTON PRESS
+     ─────────────
+       whileTap={{ scale: 0.97 }}
+
+C.5  TAB TRANSITIONS (AnimatePresence)
+     ─────────────────────────────────
+       <AnimatePresence mode="wait">
+         <motion.div key={activeTab}
+           initial={{ opacity: 0, y: 10 }}
+           animate={{ opacity: 1, y: 0 }}
+           exit={{ opacity: 0, y: -10 }}
+         >
+
+C.6  MODAL ANIMATION
+     ────────────────
+     Backdrop:
+       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+
+     Modal body:
+       initial={{ opacity: 0, scale: 0.95, y: 20 }}
+       animate={{ opacity: 1, scale: 1, y: 0 }}
+       exit={{ opacity: 0, scale: 0.95, y: 20 }}
+
+C.7  TOAST NOTIFICATIONS
+     ────────────────────
+     Slide in from right:
+       initial={{ opacity: 0, x: 100 }}
+       animate={{ opacity: 1, x: 0 }}
+       exit={{ opacity: 0, x: 100 }}
+
+C.8  NAVBAR HIDE/SHOW (Tesla-style)
+     ──────────────────────────────
+     Use useScroll() + useMotionValueEvent() from framer-motion:
+       - Track scrollY direction
+       - Hide (y: -100) when scrolling DOWN past 80px
+       - Show (y: 0) when scrolling UP (5px threshold)
+       - Transition: duration 0.35, ease [0.32, 0.72, 0, 1]
+
+     Navbar design: floating pill
+       - Fixed top, max-w-5xl, mx-auto, rounded-2xl
+       - Transparent at top, darker glass after scroll
+       - pt-3 for floating gap from top edge
+
+C.9  ACTIVE TAB INDICATOR
+     ─────────────────────
+     Use motion.div with layoutId for smooth sliding indicator:
+       <motion.div layoutId="activeTab"
+         className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-green-500/20
+                    rounded-lg border border-emerald-500/30"
+         transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+       />
+
+C.10 LOADING SPINNER
+     ────────────────
+     Use this pattern for loading states:
+       <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent
+                       rounded-full animate-spin" />
+
+C.11 MOBILE SIDEBAR SLIDE
+     ─────────────────────
+       initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
+     With backdrop: fixed inset-0 bg-black/50
+
+
+================================================================================
+SECTION D: REUSABLE COMPONENT ARCHITECTURE
+================================================================================
+
+Build these EXACT reusable components first, then use them everywhere:
+
+D.1  GlassCard — Glassmorphism container
+     ────────────────────────────────────
+     Props: children, className?, hover? (boolean), onClick?
+     Base: bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6
+     If hover: whileHover={{ scale: 1.02, boxShadow: emerald glow }}
+     If onClick: cursor-pointer
+     Entry animation: initial opacity:0 y:20 → animate opacity:1 y:0
+
+D.2  StatCard — Dashboard metric card
+     ─────────────────────────────────
+     Props: icon (ReactNode), label (string), value (string|number),
+            trend? ({ value, positive }), color? (emerald|blue|purple|amber|red|cyan)
+     Layout: icon (gradient rounded-xl box) + trend arrow top row,
+             large value below, small label at bottom
+
+D.3  TabNav — Tab navigation with animated indicator
+     ────────────────────────────────────────────────
+     Props: tabs ({ id, label, icon? }[]), activeTab, onChange
+     Container: bg-white/5 rounded-xl p-1 border border-white/10 overflow-x-auto
+     Active tab: layoutId="activeTab" emerald gradient bg + border
+     Inactive: text-gray-400 hover:text-white
+
+D.4  Modal — Animated modal dialog
+     ─────────────────────────────
+     Props: isOpen, onClose, title, children, size? (sm|md|lg)
+     Backdrop: fixed inset-0 bg-black/60 backdrop-blur-sm (click to close)
+     Body: bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-2xl
+     Header: title (text-lg font-bold) + X close button
+     AnimatePresence wrapping everything
+
+D.5  Toast / ToastProvider — Notification system
+     ────────────────────────────────────────────
+     Types: success (emerald), error (red), warning (amber), info (blue)
+     Position: fixed top-4 right-4 z-[100]
+     Each toast: icon + message + dismiss X, auto-dismiss 3.5s
+     Use React Context: ToastProvider wraps app, useToast() hook for showToast()
+     Icons: CheckCircle (success), XCircle (error), AlertTriangle (warning), Info (info)
+
+D.6  Badge — Status badge
+     ────────────────────
+     Variants: success, danger, warning, info, default
+     Style: text-xs px-2.5 py-0.5 rounded-full font-medium
+     Colors: emerald bg/text for success, red for danger, amber for warning, etc.
+
+D.7  SearchBar — Search input
+     ────────────────────────
+     Props: value, onChange, placeholder
+     Style: bg-white/5 border border-white/10 rounded-xl with Search icon
+
+D.8  Button — Custom button
+     ──────────────────────
+     Variants: primary (emerald gradient), secondary (outlined), danger (red)
+     States: loading (spinner), disabled (opacity-50)
+     Animation: whileTap={{ scale: 0.97 }}
+
+D.9  Input — Styled input field
+     ──────────────────────────
+     Style: bg-white/5 border border-white/10 rounded-xl text-white
+     Focus: border-emerald-500/50, ring-2 ring-emerald-500/20
+     Label: text-sm font-medium text-gray-300 mb-1
+
+D.10 ProgressBar — Animated progress
+     ─────────────────────────────────
+     Animate width from 0 to target % using framer-motion
+     Track: bg-white/10 rounded-full
+     Fill: bg-gradient-to-r from-emerald-500 to-green-500 rounded-full
+
+D.11 ScrollToTop — Floating scroll button
+     ─────────────────────────────────────
+     Shows when scrolled down, position: fixed bottom-24 right-6
+     Rounded-full emerald gradient, ChevronUp icon
+     Click: window.scrollTo({ top: 0, behavior: 'smooth' })
+
+
+================================================================================
+SECTION E: LAYOUT ARCHITECTURE
+================================================================================
+
+E.1  ROOT LAYOUT (src/app/layout.tsx)
+     ─────────────────────────────────
+     - Load Inter font (variable: --font-geist-sans)
+     - Load JetBrains Mono font (variable: --font-geist-mono)
+     - <html suppressHydrationWarning> (prevents browser extension conflicts)
+     - <body className="min-h-full flex flex-col bg-[#0a0a1a] text-white">
+     - Wrap children in ClientProviders
+
+E.2  CLIENT PROVIDERS (src/components/ClientProviders.tsx)
+     ────────────────────────────────────────────────────
+     'use client' component that wraps the entire app:
+     - ToastProvider (for global toast notifications)
+     - ScrollToTop (floating scroll button)
+     - FloatingChat (AI chatbot bubble — optional)
+     - Seed demo data on first load via useEffect + dynamic import
+
+E.3  LANDING PAGE LAYOUT
+     ────────────────────
+     Stack: Navbar → Hero → Sections → Footer
+     No sidebar. Full-width. Navbar is floating pill design.
+
+E.4  DASHBOARD LAYOUT (src/components/layout/DashboardLayout.tsx)
+     ────────────────────────────────────────────────────────────
+     'use client' component with auth check:
+     - On mount: getCurrentUser() → if null, redirect to /auth/login
+     - While loading: show centered spinner
+     - Layout: flex row
+       * Left: Sidebar (hidden on mobile, 64px wide on desktop)
+       * Right: flex column
+         - Top bar: sticky, h-14, welcome message + notification bell + avatar
+         - Main content: flex-1, p-4 lg:p-6
+
+E.5  SIDEBAR (src/components/layout/Sidebar.tsx)
+     ───────────────────────────────────────────
+     - Role-based navigation items (different links per role)
+     - Each item: icon + label, active state with emerald gradient bg
+     - Bottom section: user avatar (first letter) + name + role + logout button
+     - Desktop: sticky, h-screen, w-64, visible
+     - Mobile: slide-in overlay with backdrop, triggered by hamburger menu
+
+E.6  NAVBAR — FLOATING PILL (src/components/layout/Navbar.tsx)
+     ─────────────────────────────────────────────────────────
+     - Fixed top, max-w-5xl mx-auto, rounded-2xl
+     - Left: Logo (gradient icon box + text)
+     - Center: nav links (hidden on mobile)
+     - Right: Login (outlined) + Get Started (gradient) buttons
+     - Mobile: hamburger → animated dropdown menu
+     - Tesla behavior: useScroll + useMotionValueEvent for auto-hide
+
+
+================================================================================
+SECTION F: PAGE STRUCTURE PATTERNS
+================================================================================
+
+F.1  LANDING PAGE PATTERN
+     ─────────────────────
+     Stack these section components:
+       <Navbar />
+       <HeroSection />           — Full-width hero with CTA
+       <RoleShowcase />          — 3 cards for different user types (or key features)
+       <FeaturesGrid />          — 6-8 feature cards in a grid
+       <HowItWorks />            — 3-step process with visual connections
+       <Testimonials />          — 3 testimonial cards
+       <ChatbotPreview />        — Optional: preview of AI/chat feature
+       <Footer />                — Links, social, copyright
+
+F.2  DASHBOARD PAGE PATTERN
+     ──────────────────────
+     Every dashboard page follows this structure:
+       export default function [Role]Dashboard() {
+         const [activeTab, setActiveTab] = useState('overview');
+         const [user, setUser] = useState(null);
+         // ... load data in useEffect
+
+         return (
+           <DashboardLayout>
+             <div className="space-y-6">
+               <h1 className="text-2xl font-bold">[Role] Dashboard</h1>
+               <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+               <AnimatePresence mode="wait">
+                 <motion.div key={activeTab} initial/animate/exit>
+                   {activeTab === 'overview' && <OverviewContent />}
+                   {activeTab === 'tab2' && <Tab2Content />}
+                   ...
+                 </motion.div>
+               </AnimatePresence>
+             </div>
+           </DashboardLayout>
+         );
+       }
+
+F.3  OVERVIEW TAB PATTERN
+     ─────────────────────
+     - 4 StatCards in a grid (grid-cols-2 lg:grid-cols-4 gap-4)
+     - Below: content sections in GlassCards
+     - Quick actions row at bottom
+
+F.4  LIST/TABLE TAB PATTERN
+     ──────────────────────
+     - SearchBar + Filter buttons at top
+     - Add New button (opens Modal)
+     - Grid or table of items, each in a GlassCard or table row
+     - Empty state with illustration text
+
+F.5  FORM/MODAL PATTERN
+     ───────────────────
+     - Use <Modal> component with title
+     - Form inside: stack Input components with labels
+     - Bottom: Cancel (outlined) + Submit (gradient) buttons
+     - Loading state: button shows spinner, disabled
+     - On success: close modal + showToast('Success message')
+
+F.6  MULTI-STEP FLOW PATTERN (for payments, registrations, wizards)
+     ──────────────────────────────────────────────────────────────
+     Track step with useState:
+       const [step, setStep] = useState<'input' | 'details' | 'processing' | 'success'>('input');
+
+     Render conditionally:
+       {step === 'input' && <InputForm />}
+       {step === 'details' && <DetailsForm />}
+       {step === 'processing' && <ProcessingAnimation />}  // spinner + "Processing..."
+       {step === 'success' && <SuccessScreen />}           // checkmark + details
+
+     Processing step: setTimeout(() => setStep('success'), 2000)
+
+
+================================================================================
+SECTION G: DATA & STORAGE ARCHITECTURE
+================================================================================
+
+G.1  localStorage NAMESPACING
+     ──────────────────────────
+     All per-user data MUST use this key format:
+       usr::<email>::<data_key>
+
+     Examples:
+       usr::john@example.com::profile_data
+       usr::john@example.com::wallet
+       usr::john@example.com::orders
+
+     Global shared data uses a prefix without user:
+       app_users          — All registered users
+       app_current_user   — Currently logged-in email
+       product_catalog    — Shared data (like exam lists, product lists, etc.)
+
+G.2  STORAGE UTILITY PATTERN (src/lib/*-storage.ts)
+     ───────────────────────────────────────────────
+     Create separate storage files per domain:
+
+       export function getData(email: string): DataType {
+         if (typeof window === 'undefined') return defaultValue;
+         const raw = localStorage.getItem(`usr::${email}::data_key`);
+         return raw ? JSON.parse(raw) : defaultValue;
+       }
+
+       export function saveData(email: string, data: DataType) {
+         localStorage.setItem(`usr::${email}::data_key`, JSON.stringify(data));
+       }
+
+     IMPORTANT: Always check `typeof window === 'undefined'` for SSR safety.
+
+G.3  AUTH PATTERN (src/lib/user-storage.ts)
+     ──────────────────────────────────────
+     Users stored in: app_users (array of User objects)
+     Current session: app_current_user (email string)
+
+     Functions needed:
+       getUsers() — returns all users
+       registerUser(name, email, password) — adds to array
+       loginUser(email, password) — validates, sets current user
+       logoutUser() — clears current user
+       getCurrentUser() — returns current user object or null
+       setUserRole(email, role) — sets the user's role
+
+G.4  SEED DATA PATTERN (src/lib/seed-data.ts)
+     ─────────────────────────────────────────
+     Function: seedDemoData()
+     Called once from ClientProviders useEffect
+     Checks if data already exists before seeding
+     Seeds: demo users, sample data for each role
+
+G.5  UTILITY FUNCTIONS (src/lib/utils.ts)
+     ─────────────────────────────────────
+     Must include:
+       generateId() — random string ID
+       generateVerificationCode() — 6-char alphanumeric
+       formatCurrency(amount) — "₹1,234" format
+       formatDate(dateString) — readable date
+       Plus any domain-specific calculators
+
+G.6  TYPE DEFINITIONS (src/types/*.ts)
+     ─────────────────────────────────
+     Create separate type files per domain:
+       types/user.ts    — User, Role, Profile types
+       types/[domain].ts — Domain-specific types
+
+     Every interface should be properly typed with:
+       - string for IDs, names, dates (ISO format)
+       - number for amounts, counts, scores
+       - union types for status fields ('active' | 'inactive' | 'pending')
+       - optional fields marked with ?
+
+
+================================================================================
+SECTION H: AUTH & ROLE SYSTEM PATTERN
+================================================================================
+
+H.1  AUTH PAGES
+     ──────────
+     /auth/login       — Email + Password form in centered GlassCard
+     /auth/register    — Name + Email + Password + Confirm Password
+     /auth/setup-role  — 3 large selectable role cards
+     /auth/setup/[role] — Role-specific profile setup form
+
+H.2  LOGIN PAGE DESIGN
+     ──────────────────
+     - Centered GlassCard on bg-[#0a0a1a]
+     - Logo at top
+     - Email input + Password input
+     - "Remember Me" checkbox + "Forgot Password?" link
+     - Login button (full width, emerald gradient)
+     - "Don't have an account?" link
+     - Show demo accounts for quick testing
+
+H.3  ROLE SELECTION DESIGN
+     ─────────────────────
+     - 3 large cards side by side (or stacked on mobile)
+     - Each: icon (in gradient box) + role name + description
+     - Click to select → emerald border + checkmark
+     - Continue button at bottom
+     - On submit: save role, redirect to setup
+
+H.4  ROUTE PROTECTION
+     ─────────────────
+     Every dashboard page:
+       useEffect(() => {
+         const user = getCurrentUser();
+         if (!user) router.push('/auth/login');
+         else setUser(user);
+       }, []);
+
+
+================================================================================
+SECTION I: AI CHATBOT PATTERN (Optional but Recommended)
+================================================================================
+
+I.1  FLOATING CHAT BUBBLE
+     ─────────────────────
+     - Fixed bottom-6 right-6, z-50
+     - Circular button with Bot/MessageCircle icon
+     - Pulse animation ring behind it
+     - Click: toggles chat panel open/closed
+     - Badge showing unread count (optional)
+
+I.2  CHAT PANEL
+     ──────────
+     - Slides up from bottom-right
+     - Width: w-80 or w-96
+     - Height: h-[500px]
+     - Header: title + minimize button
+     - Messages area: scrollable, auto-scroll to bottom
+     - User messages: right-aligned, emerald bg
+     - Bot messages: left-aligned, bg-white/5
+     - Input: bottom-pinned, with send button
+     - Typing indicator: 3 bouncing dots
+
+I.3  DOMAIN SELECTOR (for multi-domain bots)
+     ────────────────────────────────────────
+     - Horizontal scroll of domain cards at top
+     - Each: icon + label + color accent
+     - Click to switch domain context
+     - Responses adapt to selected domain
+
+I.4  RESPONSE GENERATION
+     ────────────────────
+     For prototype: use keyword matching + predefined responses
+     - Match user input keywords to response templates
+     - Add simulated delay (800-1400ms) for realism
+     - Show typing indicator during delay
+     - Support formatted text (headers, lists, links)
+
+
+================================================================================
+SECTION J: FOLDER STRUCTURE TEMPLATE
+================================================================================
+
+  src/
+  ├── app/
+  │   ├── page.tsx                        — Landing page
+  │   ├── layout.tsx                      — Root layout
+  │   ├── globals.css                     — Global styles
+  │   ├── auth/
+  │   │   ├── login/page.tsx              — Login
+  │   │   ├── register/page.tsx           — Register
+  │   │   ├── setup-role/page.tsx         — Role selection
+  │   │   └── setup/
+  │   │       └── [role]/page.tsx         — Per-role profile setup
+  │   ├── dashboard/
+  │   │   └── [role]/page.tsx             — Per-role dashboard (tabbed)
+  │   ├── profile/
+  │   │   └── [role]/page.tsx             — Per-role profile view
+  │   ├── [feature-pages]/page.tsx        — Additional feature pages
+  │   └── ai-assistant/page.tsx           — Full AI chat page (optional)
+  │
+  ├── components/
+  │   ├── ui/                             — Reusable UI primitives
+  │   │   ├── GlassCard.tsx
+  │   │   ├── StatCard.tsx
+  │   │   ├── Button.tsx
+  │   │   ├── Input.tsx
+  │   │   ├── Modal.tsx
+  │   │   ├── Toast.tsx
+  │   │   ├── Badge.tsx
+  │   │   ├── TabNav.tsx
+  │   │   ├── SearchBar.tsx
+  │   │   ├── ProgressBar.tsx
+  │   │   └── ScrollToTop.tsx
+  │   ├── layout/
+  │   │   ├── Navbar.tsx                  — Tesla-style floating navbar
+  │   │   ├── Sidebar.tsx                 — Role-based sidebar
+  │   │   ├── Footer.tsx                  — Landing page footer
+  │   │   └── DashboardLayout.tsx         — Auth-protected dashboard wrapper
+  │   ├── landing/
+  │   │   ├── HeroSection.tsx
+  │   │   ├── FeaturesGrid.tsx
+  │   │   ├── HowItWorks.tsx
+  │   │   ├── Testimonials.tsx
+  │   │   └── [other sections].tsx
+  │   ├── chat/
+  │   │   └── FloatingChat.tsx            — Floating chat bubble + panel
+  │   └── ClientProviders.tsx             — Global wrapper (Toast, Chat, ScrollToTop)
+  │
+  ├── lib/
+  │   ├── user-storage.ts                 — Auth & user management
+  │   ├── [domain]-storage.ts             — Per-domain data CRUD
+  │   ├── seed-data.ts                    — Demo data initialization
+  │   └── utils.ts                        — Utilities (generateId, formatCurrency, etc.)
+  │
+  └── types/
+      ├── user.ts                         — User, Role, Profile types
+      └── [domain].ts                     — Per-domain types
+
+
+================================================================================
+SECTION K: CRITICAL RULES — DO NOT BREAK THESE
+================================================================================
+
+1.  DARK THEME ONLY — Never use white/light backgrounds. Background is ALWAYS
+    #0a0a1a. Cards are ALWAYS bg-white/5 with backdrop-blur.
+
+2.  'use client' — Every component using useState, useEffect, useRouter,
+    framer-motion, or browser APIs MUST have 'use client' at the top.
+
+3.  ANIMATIONS EVERYWHERE — Every card entrance, tab switch, modal open/close,
+    and page transition MUST use Framer Motion. No static pages.
+
+4.  GLASSMORPHISM CONSISTENCY — Every card, sidebar, topbar, modal, and dropdown
+    MUST use the glass effect (bg-white/5 backdrop-blur-xl border border-white/10).
+
+5.  ROUNDED CORNERS — rounded-2xl for cards, rounded-xl for buttons and inputs,
+    rounded-lg for small elements. Never use sharp corners.
+
+6.  EMERALD AS PRIMARY — The primary accent color is ALWAYS emerald green
+    (from-emerald-500 to-green-500). Use it for CTAs, active states, gradients.
+
+7.  LUCIDE ICONS ONLY — Use lucide-react for ALL icons. Never use emoji or
+    other icon libraries in the UI components.
+
+8.  RESPONSIVE — Every page MUST work on mobile. Use responsive classes:
+    grid-cols-1 md:grid-cols-2 lg:grid-cols-4, hidden md:flex, etc.
+
+9.  NO INLINE STYLES — Use Tailwind classes only. No style={{}} objects
+    unless absolutely necessary for dynamic values.
+
+10. SSR SAFETY — All localStorage/window access MUST check
+    typeof window !== 'undefined' first.
+
+11. TOAST FOR FEEDBACK — Every user action (save, delete, submit, pay) MUST
+    show a toast notification confirming success or error.
+
+12. LOADING STATES — Every async action (data fetch, form submit) MUST show
+    a loading spinner or skeleton while processing.
+
+13. EMPTY STATES — Every list/table MUST have an empty state message when
+    no data exists instead of showing nothing.
+
+14. suppressHydrationWarning — Add to <html> tag to prevent browser extension
+    hydration errors.
+
+
+================================================================================
+SECTION L: BUILD ORDER
+================================================================================
+
+Build in this exact order:
+
+PHASE 1 — FOUNDATION
+  1. Project setup: next.js + dependencies
+  2. Root layout with fonts + ClientProviders
+  3. Reusable UI components (GlassCard, StatCard, Modal, Toast, TabNav, etc.)
+  4. Navbar (Tesla-style floating) + Footer
+  5. Sidebar + DashboardLayout
+  6. Type definitions
+  7. Storage utilities (user-storage, utils)
+  8. Seed data
+
+PHASE 2 — AUTH
+  9. Login page
+  10. Register page
+  11. Role selection page
+  12. Profile setup pages (per role)
+
+PHASE 3 — LANDING PAGE
+  13. Hero section
+  14. Features grid
+  15. Role showcase / How it works
+  16. Testimonials
+  17. Assemble landing page
+
+PHASE 4 — DASHBOARDS
+  18. Dashboard for Role 1 (all tabs)
+  19. Dashboard for Role 2 (all tabs)
+  20. Dashboard for Role 3 (all tabs)
+  21. Profile pages per role
+
+PHASE 5 — FEATURE PAGES
+  22. Wallet / Payment system (if applicable)
+  23. AI Chatbot (floating + full page)
+  24. Additional feature pages
+  25. ScrollToTop + global elements
+
+PHASE 6 — POLISH
+  26. Demo data seeding
+  27. Mobile responsiveness
+  28. Loading states and empty states
+  29. Error handling
+  30. Final testing
+
+
+================================================================================
+HOW TO USE THIS PROMPT
+================================================================================
+
+1. Copy everything from "PROMPT STARTS HERE" to the end
+2. Replace ALL [BRACKETED_PLACEHOLDERS] with your project details:
+   - [YOUR_PROJECT_NAME] → Your project name
+   - [DESCRIBE YOUR PROJECT IDEA] → What it does
+   - [LIST YOUR USER ROLES] → Your roles (e.g., Doctor, Patient, Admin)
+   - [LIST YOUR MAIN FEATURES] → Your core features
+3. Give this entire prompt to Claude / ChatGPT / AI assistant
+4. The AI will build your project with the EXACT same design system,
+   animations, component patterns, and architecture as CampusConnect
+
+TIPS:
+  - You can remove sections you don't need (e.g., Section I if no chatbot)
+  - Add your own feature details after the core prompt
+  - The more specific your feature descriptions, the better the output
+  - Reference specific sections if you need changes: "Update Section B.1
+    colors to use blue instead of emerald"
+
+================================================================================
+END OF BUILD ARCHITECTURE PROMPT
+================================================================================

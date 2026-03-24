@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a2e;
+  --bg-chat: #16162a;
+  --border: #2a2a4a;
+  --text-primary: #e8e8f0;
+  --text-secondary: #9898b8;
+  --accent: #6c5ce7;
+  --accent-hover: #7c6cf7;
+  --accent-light: rgba(108, 92, 231, 0.15);
+  --green: #00b894;
+  --orange: #fdcb6e;
+  --red: #e17055;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* Markdown styling inside chat */
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.chat-markdown h1 { font-size: 1.25rem; }
+.chat-markdown h2 { font-size: 1.1rem; }
+.chat-markdown h3 { font-size: 1rem; }
+
+.chat-markdown p {
+  margin: 0.35rem 0;
+  line-height: 1.6;
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.35rem 0;
+  padding-left: 1.25rem;
+}
+
+.chat-markdown li {
+  margin: 0.15rem 0;
+  line-height: 1.5;
+}
+
+.chat-markdown strong {
+  color: #b8b0ff;
+}
+
+.chat-markdown a {
+  color: #74b9ff;
+  text-decoration: underline;
+}
+
+.chat-markdown code {
+  background: rgba(108, 92, 231, 0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.chat-markdown blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.chat-markdown em {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Typing animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.typing-dot {
+  animation: blink 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
