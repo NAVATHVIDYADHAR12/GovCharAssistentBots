@@ -1,0 +1,816 @@
+# THEgovProject2026 Documentation
+
+## 1. Project Overview
+
+`THEgovProject2026` is a Next.js App Router web application that presents a unified AI assistant for Indian government-related guidance. The product branding in the UI is `GovPrompt`.
+
+The app combines:
+
+- A public landing page
+- Local browser-based authentication
+- A quick single-screen AI chat experience
+- A multi-domain AI assistant workspace
+- Domain-specific prompt engineering for different government and guidance topics
+- Multi-language interaction support
+
+Primary use cases:
+
+- Scholarship guidance
+- Startup India support
+- MSME benefits guidance
+- Patents and intellectual property guidance
+- Certification/document guidance
+- Student and minor legal rights awareness
+- Career guidance
+- Competitive exam preparation
+- Tech roadmap and job guidance
+
+## 2. Tech Stack
+
+- Framework: Next.js 16 with App Router
+- Language: TypeScript
+- UI library: React 19
+- Styling: Tailwind CSS v4 plus global CSS variables
+- Animation: Framer Motion
+- Icons: Lucide React
+- AI provider: Groq SDK
+- Model used by API route: `llama-3.3-70b-versatile`
+- Storage approach: `localStorage` for auth/session state
+
+Important package scripts from `package.json`:
+
+- `npm run dev` -> starts development server
+- `npm run build` -> production build
+- `npm run start` -> starts built app
+
+## 3. Application Purpose
+
+The app is designed to simplify complex government and career-related processes for users who may find portals, regulations, and eligibility rules difficult to understand.
+
+The solution does this by:
+
+- Separating user queries into specialized domains
+- Injecting a domain-specific system prompt before sending the query to the model
+- Returning structured answers instead of generic chat output
+- Letting users choose a response language
+- Adding post-response actions like summarize, concise, translate, text-to-speech, and download
+
+## 4. High-Level Architecture
+
+The project follows a standard Next.js structure:
+
+- `src/app` contains routes and layout
+- `src/components` contains reusable UI and page sections
+- `src/lib` contains domain definitions, prompts, and browser storage utilities
+- `public/hero` contains landing page hero assets
+
+Main runtime flow:
+
+1. User visits landing page or chat page.
+2. User selects a domain and language.
+3. User sends a question.
+4. Frontend posts chat history plus selected domain metadata to `/api/chat`.
+5. API route calls `getSystemPrompt(...)`.
+6. API route prepends the system prompt and forwards the request to Groq.
+7. Assistant response is returned to the frontend.
+8. Chat UI renders markdown-like output and exposes actions like translation or summarization.
+
+## 5. Route Map
+
+### `/`
+
+Public landing page composed from:
+
+- floating navbar
+- hero section
+- features grid
+- how-it-works section
+- language showcase
+- testimonials
+- footer
+
+Purpose:
+
+- introduce the product
+- market the available AI domains
+- send users into quick chat or full bot experience
+
+### `/auth/login`
+
+Client-side login form. Uses `loginUser()` from `src/lib/user-storage.ts`.
+
+Behavior:
+
+- validates credentials against browser `localStorage`
+- shows toast feedback
+- redirects successful users to `/government-bots`
+
+### `/auth/register`
+
+Client-side registration form. Uses `registerUser()` from `src/lib/user-storage.ts`.
+
+Behavior:
+
+- validates password length and confirm password match
+- stores user in browser `localStorage`
+- sets current session
+- redirects successful users to `/government-bots`
+
+### `/gov-prompt`
+
+A minimal quick-chat page without the floating navbar. It exposes:
+
+- top bar
+- domain selector
+- language selector
+- chat window
+
+This is the fast-entry chat experience.
+
+### `/government-bots`
+
+The main assistant workspace with:
+
+- floating navbar
+- left sidebar of domains
+- language selector
+- chat panel
+
+It also accepts a `domain` query parameter, for example:
+
+- `/government-bots?domain=career`
+- `/government-bots?domain=legal`
+
+### `/api/chat`
+
+POST API route that sends messages to Groq using the domain-specific system prompt.
+
+## 6. Root Layout and Global Providers
+
+### `src/app/layout.tsx`
+
+Responsibilities:
+
+- defines page metadata
+- loads `globals.css`
+- wraps the app with `ClientProviders`
+- applies the dark theme base body classes
+
+Metadata values:
+
+- title: `GovCharAssistentBots`
+- description: unified AI assistant for Indian government services
+
+### `src/components/ClientProviders.tsx`
+
+Wraps the application with:
+
+- `ToastProvider`
+- `ScrollToTop`
+
+This means toast notifications and the floating scroll-to-top button are globally available.
+
+## 7. Landing Page Architecture
+
+### `src/app/page.tsx`
+
+Composes the landing page from reusable sections.
+
+### `src/components/layout/Navbar.tsx`
+
+Floating navbar with:
+
+- scroll-aware hide/show behavior
+- desktop and mobile navigation
+- auth-aware login/register vs logout/user greeting
+
+It uses:
+
+- `useScroll`
+- `useMotionValueEvent`
+- `getCurrentUser()`
+- `logoutUser()`
+
+Navigation links:
+
+- Home
+- Quick Chat
+- All Bots
+
+### `src/components/landing/HeroSection.tsx`
+
+This is the strongest visual section of the site.
+
+Features:
+
+- rotating hero background images from `public/hero`
+- rotating headline words
+- CTA buttons to quick chat and full bot explorer
+- platform stats
+
+### `src/components/landing/FeaturesGrid.tsx`
+
+Displays the 9 primary domains as interactive cards linking into `/government-bots?domain=...`.
+
+### `src/components/landing/HowItWorks.tsx`
+
+Explains the product flow in 3 steps:
+
+- pick domain
+- ask question
+- get structured answer
+
+### `src/components/landing/LanguageShowcase.tsx`
+
+Markets multilingual capability by presenting the supported languages.
+
+### `src/components/landing/Testimonials.tsx`
+
+Contains static testimonial content for social proof.
+
+### `src/components/layout/Footer.tsx`
+
+Provides:
+
+- grouped internal links
+- domain shortcuts
+- branding
+- footer note about Groq model usage
+
+## 8. Chat System Architecture
+
+### Main component: `src/components/ChatWindow.tsx`
+
+This is the central product component.
+
+It handles:
+
+- message state
+- user input
+- request lifecycle
+- assistant rendering
+- toolbar actions on assistant messages
+- scroll-to-bottom behavior
+- text-to-speech
+- translation flow
+- download/export
+
+### Props passed into `ChatWindow`
+
+- `domainId`
+- `domainName`
+- `domainIcon`
+- `domainColor`
+- `language`
+- `suggestedPrompts`
+
+This design keeps the chat component generic while domain context is injected from route-level UI.
+
+### Chat lifecycle
+
+1. User types or clicks a suggested prompt.
+2. `sendMessage()` appends the user message locally.
+3. Frontend posts payload to `/api/chat`.
+4. API route generates reply.
+5. Assistant message is appended.
+6. UI scrolls to newest message.
+
+### Empty state behavior
+
+When the conversation is empty, the component shows:
+
+- domain icon
+- assistant title
+- guidance text
+- domain-specific suggested prompts
+
+### Assistant message toolbar actions
+
+For each non-error assistant message, the UI offers:
+
+- `Concise`
+- `Summarize`
+- `Points`
+- `Download`
+- `Read Aloud`
+- `Translate`
+
+#### Concise / Summarize / Points
+
+These actions do not transform locally. They send a second AI request to the same `/api/chat` endpoint with a new prompt instructing the model to rewrite the assistant message.
+
+Effect:
+
+- the original assistant message at that index is replaced with the refined output
+
+#### Translate
+
+Translation also uses `/api/chat` and asks the model to translate the existing assistant message while keeping markdown formatting.
+
+Effect:
+
+- replaces the assistant message content with the translated version
+
+#### Download
+
+Creates a plain text file in the browser containing:
+
+- domain
+- language
+- date
+- prior user question
+- AI response
+
+#### Read Aloud
+
+Uses browser `speechSynthesis` through `SpeechSynthesisUtterance`.
+
+Supported TTS language mappings:
+
+- English -> `en-IN`
+- Hindi -> `hi-IN`
+- Telugu -> `te-IN`
+- Tamil -> `ta-IN`
+- German -> `de-DE`
+- Russian -> `ru-RU`
+- Chinese -> `zh-CN`
+- Japanese -> `ja-JP`
+
+### Markdown rendering
+
+`ChatWindow.tsx` contains a custom `renderMarkdown()` helper that converts a limited subset of markdown-like syntax into HTML using string replacement and `dangerouslySetInnerHTML`.
+
+Supported formatting includes:
+
+- headings
+- bold
+- italic
+- inline code
+- links
+- blockquotes
+- lists
+- horizontal rule
+
+Important engineering note:
+
+- this renderer is custom and simplistic
+- it is not a full markdown parser
+- because it uses `dangerouslySetInnerHTML`, any future broadening of allowed content should be reviewed carefully for security
+
+## 9. Domain and Prompt System
+
+### `src/lib/domains.ts`
+
+Defines the application’s domains and supported languages.
+
+Each domain entry contains:
+
+- `id`
+- `name`
+- `icon`
+- `portal`
+- `color`
+- `suggestedPrompts`
+
+Configured domains:
+
+1. scholarship
+2. startup
+3. msme
+4. patent
+5. certification
+6. legal
+7. career
+8. exam-prep
+9. tech-roadmap
+
+Supported languages:
+
+- English
+- Hindi
+- Telugu
+- Tamil
+- German
+- Russian
+- Chinese
+- Japanese
+
+### `src/lib/prompts.ts`
+
+Contains `getSystemPrompt(domainId, domainName, language)`.
+
+This is the core AI behavior definition layer.
+
+Prompt groups:
+
+- default government-services prompt
+- legal rights prompt
+- career guide prompt
+- exam prep prompt
+- tech roadmap prompt
+
+Shared multilingual rule:
+
+- user can ask in any language
+- assistant must reply in the selected target language
+
+Behavior by domain:
+
+#### Default prompt
+
+Used for:
+
+- scholarship
+- startup
+- msme
+- patent
+- certification
+
+Response structure required:
+
+- Summary
+- Eligibility
+- Steps to Apply
+- Documents Required
+- Official Link
+- Follow-up
+
+#### Legal prompt
+
+Specialized for student/minor legal rights.
+
+Requires:
+
+- specific law/article/section references
+- explanation of rights
+- suggested action
+- relevant authorities
+- helpline or official links
+- legal disclaimer
+
+#### Career prompt
+
+Specialized for education-stage-based guidance.
+
+Requires:
+
+- first-message education-stage discovery
+- ranked career options
+- courses/exams
+- skills
+- salary expectations
+- action plan
+- government schemes
+
+#### Exam-prep prompt
+
+Specialized for Indian competitive exams.
+
+Requires:
+
+- overview
+- eligibility
+- exam pattern
+- syllabus breakdown
+- preparation strategy
+- resources
+- previous year trends
+- tips
+
+#### Tech-roadmap prompt
+
+Specialized for learning-to-job pipelines.
+
+Requires:
+
+- 4-phase roadmap
+- job market intelligence
+- certifications
+- salary ranges
+- companies
+- practical project strategy
+
+## 10. API Layer
+
+### `src/app/api/chat/route.ts`
+
+This is the only backend endpoint in the current application.
+
+Responsibilities:
+
+- validate `GROQ_API_KEY`
+- parse incoming JSON payload
+- create domain-specific system prompt
+- prepend system prompt to chat history
+- send request to Groq
+- return reply as JSON
+- handle API, timeout, and auth errors
+
+Request payload fields expected:
+
+- `messages`
+- `domainId`
+- `domainName`
+- `language`
+
+Groq configuration:
+
+- timeout: 60000 ms
+- maxRetries: 3
+- temperature: 0.3
+- max_tokens: 1024
+
+Error cases handled:
+
+- missing API key
+- timeout
+- authentication failure
+- generic internal errors
+
+## 11. Authentication and User State
+
+### `src/lib/user-storage.ts`
+
+Authentication is entirely browser-side and prototype-level.
+
+Stored keys:
+
+- `app_users`
+- `app_current_user`
+
+Stored user fields:
+
+- `name`
+- `email`
+- `password`
+- `createdAt`
+
+Exported functions:
+
+- `getUsers()`
+- `registerUser(name, email, password)`
+- `loginUser(email, password)`
+- `logoutUser()`
+- `getCurrentUser()`
+
+Important characteristics:
+
+- no hashing
+- no server persistence
+- no secure session token
+- no backend auth validation
+- no role model
+
+This is acceptable for a prototype/demo, but not for production.
+
+## 12. UI Utility Components
+
+### `src/components/ui/Toast.tsx`
+
+Global toast notification system using React context.
+
+Supported types:
+
+- success
+- error
+- warning
+- info
+
+Behavior:
+
+- toast appears top-right
+- auto-dismiss after 3.5 seconds
+- can also be manually closed
+
+### `src/components/ui/ScrollToTop.tsx`
+
+Shows a floating action button after the user scrolls down.
+
+Behavior:
+
+- appears after `window.scrollY > 300`
+- smooth-scrolls to top when clicked
+
+### `src/app/globals.css`
+
+Defines:
+
+- dark theme CSS variables
+- scrollbar styling
+- markdown content styling inside chat
+- typing indicator animation
+
+The visual theme is based on:
+
+- deep dark blue background
+- glassmorphism cards
+- colored accents per domain
+
+## 13. Visual and Interaction Design
+
+The application uses a consistent dark glassmorphism style.
+
+Recurring UI patterns:
+
+- `bg-white/5` and blur-backed panels
+- strong rounded corners
+- gradient buttons
+- Framer Motion animation on most major sections
+- large visual hero imagery on landing page
+- domain-colored interactive states inside chat
+
+Animation usage includes:
+
+- section entrance
+- staggered card reveal
+- floating navbar hide/show
+- button tap/hover states
+- rotating hero words
+- fading image slideshow
+- toast transitions
+
+## 14. File and Folder Reference
+
+### Root files
+
+- `package.json` -> dependencies and scripts
+- `next.config.ts` -> enables `reactStrictMode`
+- `tsconfig.json` -> strict TypeScript config with `@/*` alias
+- `.env.local` -> expected to contain `GROQ_API_KEY`
+- `guide` -> prompt/reference document for the GovPrompt concept
+- `document` -> this project documentation file
+
+### `src/app`
+
+- `layout.tsx` -> root layout
+- `page.tsx` -> landing page
+- `globals.css` -> global styling
+- `api/chat/route.ts` -> AI API endpoint
+- `auth/login/page.tsx` -> login UI
+- `auth/register/page.tsx` -> register UI
+- `gov-prompt/page.tsx` -> minimal quick-chat route
+- `government-bots/page.tsx` -> full bot workspace route
+- `ProjectPageArctecture` -> long architecture reference text file
+
+### `src/components`
+
+- `ChatWindow.tsx` -> core AI chat interface
+- `ClientProviders.tsx` -> global providers
+- `layout/Navbar.tsx` -> floating navigation
+- `layout/Footer.tsx` -> footer
+- `landing/*` -> landing page sections
+- `ui/Toast.tsx` -> toast system
+- `ui/ScrollToTop.tsx` -> scroll button
+- `ui/Button.tsx`, `ui/Input.tsx`, `ui/GlassCard.tsx` -> reusable primitives not yet central to most app flows
+
+### `src/lib`
+
+- `domains.ts` -> domain and language config
+- `prompts.ts` -> system prompt generation
+- `user-storage.ts` -> local browser auth/session handling
+
+### `public/hero`
+
+- 9 hero images used in the landing page slideshow
+
+## 15. Environment Setup
+
+To run the project locally:
+
+1. Install dependencies:
+   `npm install`
+2. Create or update `.env.local`
+3. Add:
+   `GROQ_API_KEY=your_key_here`
+4. Start dev server:
+   `npm run dev`
+5. Open the local Next.js URL in the browser
+
+If `GROQ_API_KEY` is missing, the chat API returns a 500 error with a configuration message.
+
+## 16. Current Strengths
+
+- Clear domain-based AI architecture
+- Good separation between UI, route layer, and prompt logic
+- Reusable central chat component
+- Good UX for refining AI output
+- Multilingual interaction concept is embedded in both data layer and prompts
+- Smooth presentation and strong landing page visuals
+- Simple prototype auth works without backend setup
+
+## 17. Current Limitations and Risks
+
+### 1. Prototype authentication only
+
+Passwords are stored in plain text in `localStorage`.
+
+Risk:
+
+- insecure
+- easy to inspect or modify
+- not suitable for production
+
+### 2. No authoritative live government lookup
+
+The prompts ask for accurate or up-to-date answers, but the current runtime does not perform web search or official portal retrieval.
+
+Risk:
+
+- model can provide stale or fabricated official details
+
+### 3. Custom markdown renderer
+
+`renderMarkdown()` is manual and limited.
+
+Risk:
+
+- formatting edge cases
+- security concerns if content assumptions change
+
+### 4. Some text encoding issues in source data
+
+Several files show mojibake characters for:
+
+- emoji icons
+- non-English native language labels
+- some punctuation
+
+Risk:
+
+- broken display in UI
+- reduced polish
+
+### 5. No persistence beyond browser storage
+
+Chat history and user data are not persisted on a backend.
+
+Risk:
+
+- data loss when browser storage is cleared
+- no multi-device continuity
+
+### 6. No test suite
+
+There are currently no visible unit, integration, or end-to-end tests.
+
+Risk:
+
+- regressions are harder to catch
+
+### 7. No access control on chat pages
+
+Login redirects into `/government-bots`, but route-level protection is not enforced by middleware or server validation.
+
+Risk:
+
+- users can access routes directly without a true authenticated backend session
+
+## 18. Recommended Next Improvements
+
+### Production-readiness
+
+- move auth to a real backend or auth provider
+- hash passwords
+- add protected sessions
+- store user/chat data in a database
+
+### AI quality
+
+- add retrieval or official-source search
+- track citations and source links
+- add domain-specific validation rules before rendering final answer
+
+### Frontend quality
+
+- replace custom markdown renderer with a safer parser
+- fix encoding issues in domain icons and language labels
+- improve responsive behavior of the full chat workspace sidebar
+
+### Engineering quality
+
+- add tests for prompt selection and API route behavior
+- add linting and formatting rules
+- add typed request/response contracts for `/api/chat`
+
+## 19. User Journey Summary
+
+Typical user journey:
+
+1. User lands on homepage.
+2. User clicks `Start Chatting` or `Explore All Bots`.
+3. User selects a domain and language.
+4. User asks a question or clicks a suggested prompt.
+5. AI answers in a structured format defined by that domain.
+6. User may summarize, translate, download, or listen to the answer.
+7. If needed, user can register or login, though the app currently does not enforce secure server auth.
+
+## 20. Conclusion
+
+This project is a polished prototype for a domain-specialized AI assistant focused on Indian government services and career guidance. Its strongest architectural idea is the combination of:
+
+- domain configuration
+- prompt specialization
+- reusable chat UI
+- multilingual support
+
+The current codebase is well-positioned for the next stage, but it still needs backend authentication, safer rendering, authoritative data retrieval, and testing before it can be treated as production-ready.

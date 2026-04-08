@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { getSystemPrompt } from "@/lib/prompts";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-  timeout: 60000, // 60 second timeout
-  maxRetries: 3,
-});
-
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.GROQ_API_KEY) {
@@ -16,6 +10,12 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+      timeout: 60000, // 60 second timeout
+      maxRetries: 3,
+    });
 
     const { messages, domainId, domainName, language } = await req.json();
 
